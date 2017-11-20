@@ -4,5 +4,5 @@ import java.rmi.Remote;
 import java.rmi.RemoteException;
 
 public interface Hello extends Remote {
-    String sayHello() throws RemoteException;
+    int compute(int number) throws RemoteException;
 }

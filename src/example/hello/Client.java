@@ -15,7 +15,7 @@ public class Client {
             System.setSecurityManager(new RMISecurityManager());
             Registry registry = LocateRegistry.getRegistry(host);
             Hello stub = (Hello) registry.lookup("Hello");
-            String response = stub.sayHello();
+            int response = stub.compute(5);
             System.out.println("response: " + response);
         } catch (Exception e) {
             System.err.println("Client exception: " + e.toString());

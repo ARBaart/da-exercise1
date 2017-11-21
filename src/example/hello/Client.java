@@ -10,12 +10,15 @@ public class Client {
 
     public static void main(String[] args) {
 
-        String host = "172.20.10.2";
+        String host = "192.168.1.140";
         try {
             System.setSecurityManager(new RMISecurityManager());
+
             Registry registry = LocateRegistry.getRegistry(host);
+
             Hello stub = (Hello) registry.lookup("Hello");
-            int response = stub.compute(5);
+
+            String response = stub.sayHello("Test");
             System.out.println("response: " + response);
         } catch (Exception e) {
             System.err.println("Client exception: " + e.toString());

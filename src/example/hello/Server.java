@@ -10,8 +10,8 @@ public class Server implements Hello {
 
     public Server() {}
 
-    public int compute(int number) {
-        return number*4;
+    public String sayHello(String argument) {
+        return "Hoi Robert";
     }
 
     public static void main(String args[]) {

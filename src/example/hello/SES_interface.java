@@ -9,6 +9,6 @@ public interface SES_interface extends Remote{
 
     int getID() throws RemoteException;
 
-    void communicate(Message message) throws RemoteException;
+    void receiveMessage(Message message) throws RemoteException;
 
 }

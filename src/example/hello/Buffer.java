@@ -4,12 +4,13 @@ import java.util.HashMap;
 
 public class Buffer extends HashMap<Integer,Timestamp> {
 
-    public Buffer(){};
+
+    public Buffer() {}
 
     //copy constructor
     public Buffer(Buffer original){
-        original.forEach((k,v)->{
-            this.put(k, new Timestamp(original.get(k)));
+        original.forEach((id,timestamp)->{
+            this.put(id, new Timestamp(original.get(id)));
 
         });}
 

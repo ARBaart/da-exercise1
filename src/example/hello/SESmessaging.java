@@ -11,10 +11,13 @@ import java.util.ArrayList;
 
 public class SESmessaging implements SES_interface, Runnable {
 
+    Logger logger;
+
     //Constructor adds own ID to vector timestamp
-    public SESmessaging(int newID, int port) {
+    public SESmessaging(int newID, int port, Logger logger) {
         ID=newID;
         startServer(port);
+        this.logger = logger;
     }
 
     //ID of process
@@ -65,7 +68,12 @@ public class SESmessaging implements SES_interface, Runnable {
     //This function can be called remotely and acts as the postman for this interface. Checks if a message can be delivered or needs to be added to the messageBuffer.
     public synchronized void receiveMessage(Message message) throws RemoteException {
         //System.out.println("Receiving: "+ message.content + " with buffer " + message.buffer.get(ID) + " with timestamp "+message.timestamp);
-        System.out.println("Receiving: "+ message.content + " with buffer " + message.buffer.get(ID) + " while at "+currentTimestamp);
+        logger.write("receiving_"
+                + message.content
+                + "_new buffer_"
+                + message.buffer.get(ID)
+                + "_old buffer_"
+                + currentTimestamp);
         if(!message.buffer.containsKey(ID)){
             deliverMessage(message);
 
@@ -113,7 +121,7 @@ public class SESmessaging implements SES_interface, Runnable {
 
     //Actual delivery of message with incrementingTimestamp, buffer merge, timestamp merge
     public synchronized void deliverMessage(Message message){
-        System.out.println("Delivering: "+ message.content);
+        logger.write("delivering_"+ message.content);
         incrementTimestamp();
         mergeBuffer(message.buffer);
         currentTimestamp.merge(message.timestamp);
@@ -158,13 +166,11 @@ public class SESmessaging implements SES_interface, Runnable {
     }
 
     public void run(){
-        sendMessage((ID+1)%3, ID + " Sends message 1 to " + (ID+1)%3);
-        sendMessage((ID+2)%3, ID + " Sends message 1 to " + (ID+2)%3);
-        sendMessage((ID+2)%3, ID + " Sends message 2 to " + (ID+2)%3);
-        sendMessage((ID+1)%3, ID + " Sends message 2 to " + (ID+1)%3);
-        sendMessage((ID+1)%3, ID + " Sends message 3 to " + (ID+1)%3);
-        sendMessage((ID+2)%3, ID + " Sends message 3 to " + (ID+2)%3);
+        sendMessage((ID+1)%3, ID + "_to_" + (ID+1)%3 + "_says_1");
+        sendMessage((ID+2)%3, ID + "_to_" + (ID+2)%3 + "_says_1");
+        sendMessage((ID+2)%3, ID + "_to_" + (ID+2)%3 + "_says_2");
+        sendMessage((ID+1)%3, ID + "_to_" + (ID+1)%3 + "_says_2");
+        sendMessage((ID+1)%3, ID + "_to_" + (ID+1)%3 + "_says_3");
+        sendMessage((ID+2)%3, ID + "_to_" + (ID+2)%3 + "_says_3");
     }
-
-
 }

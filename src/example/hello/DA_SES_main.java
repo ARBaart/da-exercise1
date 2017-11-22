@@ -30,9 +30,11 @@ public class DA_SES_main {
 
         Scanner sc = new Scanner(System.in);
 
-        LocalHosts.put(0,new SESmessaging(0,1099));
-        LocalHosts.put(1,new SESmessaging(1,1100));
-        LocalHosts.put(2,new SESmessaging(2,1101));
+        Logger logger = new Logger();
+
+        LocalHosts.put(0,new SESmessaging(0,1099, logger));
+        LocalHosts.put(1,new SESmessaging(1,1100, logger));
+        LocalHosts.put(2,new SESmessaging(2,1101, logger));
 
         System.out.println("Press Enter to continue");
         sc.nextLine();
@@ -54,6 +56,10 @@ public class DA_SES_main {
         new Thread(LocalHosts.get(0)).start();
         new Thread(LocalHosts.get(1)).start();
         new Thread(LocalHosts.get(2)).start();
+        try {
+            Thread.sleep(20000);
+        } catch (Exception e) { e.printStackTrace(); }
+        logger.finish();
     }
 
 }

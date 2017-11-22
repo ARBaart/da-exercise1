@@ -29,13 +29,12 @@ public class MyApplication {
 
         Scanner sc = new Scanner(System.in);
 
-        SESmessaging localInterface = new SESmessaging();
-        localInterface.startServer(1099);
+        SESmessaging localInterface = new SESmessaging(0,1099);
 
         System.out.println("Press Enter to continue");
         sc.nextLine();
 
-        int ID = connectHost("localhost",1098);
+        int ID = connectHost("172.20.10.2",1099);
 
         try {
             RemoteHosts.get(ID).sayHello();

@@ -12,12 +12,14 @@ import java.util.ArrayList;
 public class SESmessaging implements SES_interface {
 
     //Constructor adds own ID to vector timestamp
-    public SESmessaging() {
+    public SESmessaging(int newID, int port) {
+        ID=newID;
         addIDToTimestamp(ID);
+        startServer(port);
     }
 
     //ID of process
-    private int ID = 0;
+    private int ID;
 
     public Registry LocalRegistry;
 
@@ -42,7 +44,7 @@ public class SESmessaging implements SES_interface {
     }
 
     //Events can call this function to increment the timestamp
-    private void incrementTimestamp(){
+    private synchronized void incrementTimestamp(){
         currentTimestamp.put(ID, currentTimestamp.get(ID)+1);
     }
 
@@ -53,7 +55,7 @@ public class SESmessaging implements SES_interface {
     }
 
     //After delivery of message this function merges the buffer of the delivered message with the currentBuffer.
-    private void mergeBuffer(Buffer sourceBuffer){
+    private synchronized void mergeBuffer(Buffer sourceBuffer){
         sourceBuffer.forEach((k,v)->{
             if (currentBuffer.containsKey(k)){
                 if(sourceBuffer.get(k).geq(currentBuffer.get(k)))
@@ -68,7 +70,7 @@ public class SESmessaging implements SES_interface {
     }
 
     //This function can be called remotely and acts as the postman for this interface. Checks if a message can be delivered or needs to be added to the messageBuffer.
-    public void receiveMessage(Message message) throws RemoteException {
+    public synchronized void receiveMessage(Message message) throws RemoteException {
         System.out.println("Receiving: "+ message.content + " with buffer " + message.buffer.get(ID) + " with timestamp "+message.timestamp);
         if(!message.buffer.containsKey(ID)){
             deliverMessage(message);
@@ -116,7 +118,7 @@ public class SESmessaging implements SES_interface {
     }
 
     //Actual delivery of message with incrementingTimestamp, buffer merge, timestamp merge
-    public void deliverMessage(Message message){
+    public synchronized void deliverMessage(Message message){
         System.out.println("Delivering: "+ message.content);
         incrementTimestamp();
         mergeBuffer(message.buffer);

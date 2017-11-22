@@ -9,12 +9,11 @@ import java.util.Arrays;
 import java.util.Scanner;
 import java.util.ArrayList;
 
-public class SESmessaging implements SES_interface {
+public class SESmessaging implements SES_interface, Runnable {
 
     //Constructor adds own ID to vector timestamp
     public SESmessaging(int newID, int port) {
         ID=newID;
-        addIDToTimestamp(ID);
         startServer(port);
     }
 
@@ -24,10 +23,10 @@ public class SESmessaging implements SES_interface {
     public Registry LocalRegistry;
 
     //Local vector timestamp
-    private static Timestamp currentTimestamp = new Timestamp();
+    private Timestamp currentTimestamp = new Timestamp();
 
     //Timestampbuffer for purpose of SES algorithm
-    private static Buffer currentBuffer = new Buffer();
+    private Buffer currentBuffer = new Buffer();
 
     //Buffer for messages that are received out of order
     private ArrayList<Message> messageBuffer = new ArrayList<Message>();
@@ -48,12 +47,6 @@ public class SESmessaging implements SES_interface {
         currentTimestamp.put(ID, currentTimestamp.get(ID)+1);
     }
 
-    //When a new process connects it's id can be added to the vector timestamp
-    public static void addIDToTimestamp(int newID){
-        currentTimestamp.put(newID,0);
-
-    }
-
     //After delivery of message this function merges the buffer of the delivered message with the currentBuffer.
     private synchronized void mergeBuffer(Buffer sourceBuffer){
         sourceBuffer.forEach((k,v)->{
@@ -71,7 +64,8 @@ public class SESmessaging implements SES_interface {
 
     //This function can be called remotely and acts as the postman for this interface. Checks if a message can be delivered or needs to be added to the messageBuffer.
     public synchronized void receiveMessage(Message message) throws RemoteException {
-        System.out.println("Receiving: "+ message.content + " with buffer " + message.buffer.get(ID) + " with timestamp "+message.timestamp);
+        //System.out.println("Receiving: "+ message.content + " with buffer " + message.buffer.get(ID) + " with timestamp "+message.timestamp);
+        System.out.println("Receiving: "+ message.content + " with buffer " + message.buffer.get(ID) + " while at "+currentTimestamp);
         if(!message.buffer.containsKey(ID)){
             deliverMessage(message);
 
@@ -126,7 +120,7 @@ public class SESmessaging implements SES_interface {
     }
 
     //Copies timestamp and buffer, creates a message and sends it to the delay class.
-    protected void sendMessage(int destID, SES_interface destination, String content){
+    protected void sendMessage(int destID, String content){
 
         incrementTimestamp();
         Timestamp timestampCopy = new Timestamp(currentTimestamp);
@@ -134,7 +128,7 @@ public class SESmessaging implements SES_interface {
 
         Message message = new Message(content, bufferCopy, timestampCopy);
 
-        Delay delay = new Delay(destination, message);
+        Delay delay = new Delay(DA_SES_main.RemoteHosts.get(destID), message);
 
         new Thread(delay).start();
 
@@ -153,6 +147,9 @@ public class SESmessaging implements SES_interface {
             // Bind the remote object's stub in the registry
             LocalRegistry = LocateRegistry.getRegistry(port);
             LocalRegistry.bind("SES_interface", stub);
+
+            DA_SES_main.RemoteHosts.put(ID,stub);
+
             System.err.println("Server ready. Our ID is: "+ ID);
         } catch (Exception e) {
             System.err.println("Server exception: " + e.toString());
@@ -160,7 +157,14 @@ public class SESmessaging implements SES_interface {
         }
     }
 
-
+    public void run(){
+        sendMessage((ID+1)%3, ID + " Sends message 1 to " + (ID+1)%3);
+        sendMessage((ID+2)%3, ID + " Sends message 1 to " + (ID+2)%3);
+        sendMessage((ID+2)%3, ID + " Sends message 2 to " + (ID+2)%3);
+        sendMessage((ID+1)%3, ID + " Sends message 2 to " + (ID+1)%3);
+        sendMessage((ID+1)%3, ID + " Sends message 3 to " + (ID+1)%3);
+        sendMessage((ID+2)%3, ID + " Sends message 3 to " + (ID+2)%3);
+    }
 
 
 }

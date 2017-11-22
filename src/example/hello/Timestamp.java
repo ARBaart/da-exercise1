@@ -4,7 +4,11 @@ import java.util.HashMap;
 
 public class Timestamp extends HashMap<Integer,Integer> {
 
-    public Timestamp(){}
+    public Timestamp(){
+        for(int i =0; i<=2;i++){
+            this.put(i,0);
+        }
+    }
 
     //Copy constructor
     public Timestamp(Timestamp original){

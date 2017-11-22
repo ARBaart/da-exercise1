@@ -28,7 +28,6 @@ public class Delay implements Runnable {
 
         try {
             destinationHost.receiveMessage(messageToSend);
-            System.out.println("Sent " + messageToSend.content);
         } catch (Exception e){
             System.err.println("Delay exception: " + e.toString());
             e.printStackTrace();
